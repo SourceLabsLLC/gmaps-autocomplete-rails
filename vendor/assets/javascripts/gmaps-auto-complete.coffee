@@ -18,10 +18,13 @@ class GmapsCompleter
   pos: [0, 0]
   inputField: '#gmaps-input-address'
   placeIdField: '#gmaps-input-place-id'
+  routeField: '#gmaps-input-route'
   cityField: '#gmaps-input-city'
+  postalCodeField: '#gmaps-input-postal-code'
   stateField: '#gmaps-input-state'
+  countryCodeField: '#gmaps-input-coutry'
   errorField: '#gmaps-error'
-
+  
   constructor: (opts) ->
     @init opts
 
@@ -266,8 +269,11 @@ class GmapsCompleterDefaultAssist
     pos: [0, 0]
     inputField: '#gmaps-input-address'
     placeIdField: '#gmaps-input-place-id'
+    routeField: '#gmaps-input-route'
     cityField: '#gmaps-input-city'
+    postalCodeField: '#gmaps-input-postal-code'
     stateField: '#gmaps-input-state'
+    countryField: '#gmaps-input-country'
     errorField: '#gmaps-error'
     debugOn: true
 
@@ -283,25 +289,34 @@ class GmapsCompleterDefaultAssist
   updateUI: (position_data) ->
     inputField = @inputField
     placeIdField = @placeIdField
+    routeField = @routeField
     stateField = @stateField
     cityField = @cityField
+    postalCodeField = @postalCodeField
+    countryCodeField = @countryCodeField
     country = @country
 
     $(inputField).autocomplete 'close'
-
+    
     @debug 'country', country
 
     updateAdr = position_data.value.replace ', ' + country, ''
     updateAdr = position_data.value
+    route = @getAddressSpecificComponent(position_data.geocode.address_components, 'route')
     city = @getAddressSpecificComponent(position_data.geocode.address_components, 'locality')
+    postalCode = @getAddressSpecificComponent(position_data.geocode.address_components, 'postal_code')
     state = @getAddressSpecificComponent(position_data.geocode.address_components, 'administrative_area_level_1')
+    country_code = @getAddressSpecificComponent(position_data.geocode.address_components, 'country')
 
     @debug 'updateAdr', updateAdr
 
     $(inputField).val updateAdr
     $(placeIdField).val position_data.geocode.place_id
+    $(routeField).val route
     $(stateField).val state
     $(cityField).val city
+    $(postalCodeField).val postalCode
+    $(countryCodeField).val country_code
     @positionOutputter position_data.geocode.geometry.location
 
   getAddressSpecificComponent: (addressComponents, component) ->
@@ -310,8 +325,8 @@ class GmapsCompleterDefaultAssist
 
 
   positionOutputter: (latLng) ->
-    $('#gmaps-output-latitude').html latLng.lat()
-    $('#gmaps-output-longitude').html latLng.lng()
+    $('#gmaps-input-latitude').val latLng.lat()
+    $('#gmaps-input-longitude').val latLng.lng()
 
   geocodeErrorMsg: ->
     "Sorry, something went wrong. Try again!"
